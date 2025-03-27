@@ -6,5 +6,9 @@
   "repository": "https://github.com/danimal0410/Script_Updater.git",
   "author": "Daniel Hoy <hoydanielj@gmail.com>",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "pandas": "^0.0.3",
+    "tkinter": "^0.0.2-security"
+  }
 }
