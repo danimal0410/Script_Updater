@@ -1,0 +1,10 @@
+{
+  "name": "Script_Updater",
+  "version": "1.0.0",
+  "description": "Dv360 custom bidding auto script updater",
+  "main": "index.js",
+  "repository": "https://github.com/danimal0410/Script_Updater.git",
+  "author": "Daniel Hoy <hoydanielj@gmail.com>",
+  "license": "MIT",
+  "private": true
+}
