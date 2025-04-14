@@ -3,21 +3,33 @@ from tkinter import filedialog, messagebox
 import pandas as pd
 import os
 import sys
+from datetime import datetime
 
 # Globals to hold the DataFrames
 fandango_df = None
 search_volume_df = None
 df_match_ref = pd.read_excel("./Matched_DMAs_Updated.xlsx")
 
-def Placeholder():
+def make_script():
     # Merge uploaded data frames with the matched reference file to combine all necessary data for weight calculatiopns.
     df_merge_1 = df_match_ref.merge(fandango_df, left_on='Fandango DMA', right_on='DMA Market')
-    df_merge_final = df_merge_1.merge(search_volume_df, left_on='Search DMA', right_on='geo_ name')
+    df_merge_final = df_merge_1.merge(search_volume_df, left_on='Search DMA', right_on='geo_name')
     
     #Use merged data to calculate Indexed Search Per Person, first by creating the search per person column, then avg, then Indexed Search PP column
     df_merge_final['Search PP'] = df_merge_final['Indexed Search'] / df_merge_final['Population']
     search_pp_avg = df_merge_final['Search PP'].mean()
     df_merge_final['Search PP Index'] = df_merge_final['Search PP'] / search_pp_avg
+
+    #Use merged files to calculate Sales PP Index with new methodology to account for the percentage share of sales format
+    df_merge_final['Population Share'] = df_merge_final['Population'] / df_merge_final['Population'].sum()
+    df_merge_final['Sales PP Index'] = df_merge_final['Primary - Share of Tickets Sold'] / df_merge_final['Population Share']
+
+    #Add final weighting column for each DMA
+    df_merge_final['Composite Score'] = ((df_merge_final['Sales PP Index'] * 0.5) +  (df_merge_final['Search PP Index'] * 0.5))
+
+    #Add excel export for testing purposes
+    date = datetime.now()
+    df_merge_final.to_excel(f'./Logs/log_export_{date}.xlsx')
 
 def check_both_loaded():
     return fandango_df is not None and search_volume_df is not None
@@ -28,7 +40,7 @@ def prompt_continue():
         print("Exiting script.")
         sys.exit()
     elif answer == 'Y':
-        Placeholder()
+        make_script()
     else:
         print("Invalid input. Exiting by default.")
         sys.exit()
@@ -59,7 +71,7 @@ def load_file(file_type):
         print(df.head())
 
         if file_type == "Fandango Sales File":
-            fandango_df = df
+            fandango_df = df.drop('Row', axis=1)
         elif file_type == "Search Volume File":
             search_volume_df = df
 
