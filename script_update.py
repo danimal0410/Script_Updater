@@ -10,10 +10,14 @@ search_volume_df = None
 df_match_ref = pd.read_excel("./Matched_DMAs_Updated.xlsx")
 
 def Placeholder():
+    # Merge uploaded data frames with the matched reference file to combine all necessary data for weight calculatiopns.
     df_merge_1 = df_match_ref.merge(fandango_df, left_on='Fandango DMA', right_on='DMA Market')
     df_merge_final = df_merge_1.merge(search_volume_df, left_on='Search DMA', right_on='geo_ name')
-    # Placeholder logic
-    print("Running Placeholder function... (nothing here yet)")
+    
+    #Use merged data to calculate Indexed Search Per Person, first by creating the search per person column, then avg, then Indexed Search PP column
+    df_merge_final['Search PP'] = df_merge_final['Indexed Search'] / df_merge_final['Population']
+    search_pp_avg = df_merge_final['Search PP'].mean()
+    df_merge_final['Search PP Index'] = df_merge_final['Search PP'] / search_pp_avg
 
 def check_both_loaded():
     return fandango_df is not None and search_volume_df is not None
