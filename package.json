@@ -8,7 +8,10 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "datetime": "^0.0.3",
+    "os": "^0.1.2",
     "pandas": "^0.0.3",
+    "sys": "^0.0.1",
     "tkinter": "^0.0.2-security"
   }
 }
