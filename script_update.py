@@ -4,13 +4,26 @@ import pandas as pd
 import os
 import sys
 from datetime import datetime
+from alive_progress import alive_bar
 
 # Globals to hold the DataFrames
 fandango_df = None
 search_volume_df = None
 df_match_ref = pd.read_excel("./Matched_DMAs_Updated.xlsx")
+script_list = []
+df_merge_final = None
+
+def make_list():
+    global script_list
+    with alive_bar(len(df_merge_final['DMA ID']), title='Creating script') as bar:
+        for x in df_merge_final['DMA ID']:
+            script_list.append(f'[dma_id == {x}], ' + str((df_merge_final.loc[df_merge_final['DMA ID'] == x, 'Composite Score'].values[0])))
+            bar()
+    print(f'Script created:\n {script_list}') 
+
 
 def make_script():
+    global df_merge_final
     # Merge uploaded data frames with the matched reference file to combine all necessary data for weight calculatiopns.
     df_merge_1 = df_match_ref.merge(fandango_df, left_on='Fandango DMA', right_on='DMA Market')
     df_merge_final = df_merge_1.merge(search_volume_df, left_on='Search DMA', right_on='geo_name')
@@ -29,7 +42,11 @@ def make_script():
 
     #Add excel export for testing purposes
     date = datetime.now()
+    print('Log file exported')
     df_merge_final.to_excel(f'./Logs/log_export_{date}.xlsx')
+
+    #link to make_script
+    make_list()
 
 def check_both_loaded():
     return fandango_df is not None and search_volume_df is not None
