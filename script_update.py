@@ -17,7 +17,7 @@ def make_list():
     global script_list
     with alive_bar(len(df_merge_final['DMA ID']), title='Creating script') as bar:
         for x in df_merge_final['DMA ID']:
-            script_list.append(f'[dma_id == {x}], ' + str((df_merge_final.loc[df_merge_final['DMA ID'] == x, 'Composite Score'].values[0])))
+            script_list.append((["dma_id" == {x}], (df_merge_final.loc[df_merge_final['DMA ID'] == x, 'Composite Score'].values[0])))
             bar()
     print(f'Script created:\n {script_list}') 
 
