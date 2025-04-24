@@ -21,6 +21,9 @@ def make_list():
             bar()
     print(f'Script created:\n {script_list}') 
 
+#Function to write to python script
+def write_py():
+    return
 
 def make_script():
     global df_merge_final
