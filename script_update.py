@@ -18,7 +18,7 @@ def write_py():
     global script_name
     now_var = datetime.now()
     script_name = f'script_{now_var}'
-    with open(f'./Scripts/{script_name}', 'w') as file:
+    with open(f'./Scripts/{script_name}.py', 'w') as file:
         file.write('_dma_modifier = max_aggregate([\n')
         for x in df_merge_final['DMA ID']:
             weight_var = (df_merge_final.loc[df_merge_final['DMA ID'] == x, 'Composite Score'].values[0])
