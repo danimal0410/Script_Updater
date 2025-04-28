@@ -10,20 +10,21 @@ from alive_progress import alive_bar
 fandango_df = None
 search_volume_df = None
 df_match_ref = pd.read_excel("./Matched_DMAs_Updated.xlsx")
-script_list = []
 df_merge_final = None
+script_name = None
 
-def make_list():
-    global script_list
-    with alive_bar(len(df_merge_final['DMA ID']), title='Creating script') as bar:
-        for x in df_merge_final['DMA ID']:
-            script_list.append((["dma_id" == {x}], (df_merge_final.loc[df_merge_final['DMA ID'] == x, 'Composite Score'].values[0])))
-            bar()
-    print(f'Script created:\n {script_list}') 
-
-#Function to write to python script
+#Function to write to python script to Scripts folder
 def write_py():
-    return
+    global script_name
+    now_var = datetime.now()
+    script_name = f'script_{now_var}'
+    with open(f'./Scripts/{script_name}', 'w') as file:
+        file.write('_dma_modifier = max_aggregate([\n')
+        for x in df_merge_final['DMA ID']:
+            weight_var = (df_merge_final.loc[df_merge_final['DMA ID'] == x, 'Composite Score'].values[0])
+            file.write(f'([dma_id == {x}], {weight_var}),\n')
+        file.write('])\n')
+        file.write('return _dma_modifier')
 
 def make_script():
     global df_merge_final
@@ -48,8 +49,8 @@ def make_script():
     print('Log file exported')
     df_merge_final.to_excel(f'./Logs/log_export_{date}.xlsx')
 
-    #link to make_script
-    make_list()
+    #link to write_py
+    write_py()
 
 def check_both_loaded():
     return fandango_df is not None and search_volume_df is not None
