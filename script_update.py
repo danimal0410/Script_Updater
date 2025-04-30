@@ -4,7 +4,6 @@ import pandas as pd
 import os
 import sys
 from datetime import datetime
-from alive_progress import alive_bar
 
 # Globals to hold the DataFrames
 fandango_df = None
@@ -38,8 +37,8 @@ def make_script():
     df_merge_final['Search PP Index'] = df_merge_final['Search PP'] / search_pp_avg
 
     #Use merged files to calculate Sales PP Index with new methodology to account for the percentage share of sales format
-    df_merge_final['Population Share'] = df_merge_final['Population'] / df_merge_final['Population'].sum()
-    df_merge_final['Sales PP Index'] = df_merge_final['Primary - Share of Tickets Sold'] / df_merge_final['Population Share']
+    df_merge_final['Sales Share PP'] = df_merge_final['Primary - Share of Tickets Sold'] / df_merge_final['Population']
+    df_merge_final['Sales PP Index'] = df_merge_final['Sales Share PP'] / df_merge_final['Sales Share PP'].mean()
 
     #Add final weighting column for each DMA
     df_merge_final['Composite Score'] = ((df_merge_final['Sales PP Index'] * 0.5) +  (df_merge_final['Search PP Index'] * 0.5))
