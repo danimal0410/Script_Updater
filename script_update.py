@@ -7,6 +7,7 @@ from datetime import datetime
 
 # Globals to hold the DataFrames
 fandango_df = None
+dcm_df = None
 search_volume_df = None
 df_match_ref = pd.read_excel("./Matched_DMAs_Updated.xlsx")
 df_merge_final = None
@@ -29,7 +30,8 @@ def make_script():
     global df_merge_final
     # Merge uploaded data frames with the matched reference file to combine all necessary data for weight calculatiopns.
     df_merge_1 = df_match_ref.merge(fandango_df, left_on='Fandango DMA', right_on='DMA Market')
-    df_merge_final = df_merge_1.merge(search_volume_df, left_on='Search DMA', right_on='geo_name')
+    df_merge_2 = df_merge_1.merge(search_volume_df, left_on='Search DMA', right_on='geo_name')
+    df_merge_final = df_merge_2.merge(dcm_df, left_on='DCM DMA', right_on='Designated Market Area (DMA)')
     
     #Use merged data to calculate Indexed Search Per Person, first by creating the search per person column, then avg, then Indexed Search PP column
     df_merge_final['Search PP'] = df_merge_final['Indexed Search'] / df_merge_final['Population']
@@ -52,7 +54,7 @@ def make_script():
     write_py()
 
 def check_both_loaded():
-    return fandango_df is not None and search_volume_df is not None
+    return fandango_df is not None and search_volume_df is not None and dcm_df is not None
 
 def prompt_continue():
     answer = input("\nDo you wish to continue? (Y/n): ").strip()
@@ -66,7 +68,7 @@ def prompt_continue():
         sys.exit()
 
 def load_file(file_type):
-    global fandango_df, search_volume_df
+    global fandango_df, search_volume_df, dcm_df
 
     file_path = filedialog.askopenfilename(
         title=f"Select {file_type}",
@@ -92,6 +94,8 @@ def load_file(file_type):
 
         if file_type == "Fandango Sales File":
             fandango_df = df.drop('Row', axis=1)
+        elif file_type == 'DCM Floodlight File':
+            dcm_df = df
         elif file_type == "Search Volume File":
             search_volume_df = df
 
@@ -118,6 +122,9 @@ def main():
 
     btn2 = tk.Button(root, text="Load Search Volume File", command=lambda: load_file("Search Volume File"))
     btn2.pack(pady=5)
+
+    btn3 = tk.Button(root, text="Load DCM Floodlight File", command=lambda: load_file("DCM Floodlight File"))
+    btn3.pack(pady=5)
 
     root.mainloop()
 
