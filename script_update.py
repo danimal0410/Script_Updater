@@ -9,7 +9,7 @@ from datetime import datetime
 fandango_df = None
 dcm_df = None
 search_volume_df = None
-df_match_ref = pd.read_excel("./Matched_DMAs_Updated.xlsx")
+df_match_ref = pd.read_excel("./Updated_Matched_DMAs.xlsx")
 df_merge_final = None
 script_name = None
 
@@ -42,8 +42,12 @@ def make_script():
     df_merge_final['Sales Share PP'] = df_merge_final['Primary - Share of Tickets Sold'] / df_merge_final['Population']
     df_merge_final['Sales PP Index'] = df_merge_final['Sales Share PP'] / df_merge_final['Sales Share PP'].mean()
 
+    # Floodlight Index Value calculation included here
+    df_merge_final['Floodlight Volume PP'] = df_merge_final['Total Conversions'] / df_merge_final['Population']
+    df_merge_final['Floodlight Volume PP Index'] = df_merge_final['Floodlight volume PP'] . df_merge_final['Floodlight Volume PP'].mean()
+
     #Add final weighting column for each DMA
-    df_merge_final['Composite Score'] = ((df_merge_final['Sales PP Index'] * 0.5) +  (df_merge_final['Search PP Index'] * 0.5))
+    df_merge_final['Composite Score'] = ((df_merge_final['Sales PP Index'] * 0.10) +  (df_merge_final['Search PP Index'] * 0.67) + (df_merge_final['Floodlight Volume PP Index'] * 0.23))
 
     #Add excel export for testing purposes
     date = datetime.now()
@@ -81,7 +85,8 @@ def load_file(file_type):
     try:
         ext = os.path.splitext(file_path)[1].lower()
         if ext == '.csv':
-            df = pd.read_csv(file_path)
+            # Some fileformatting included here for the DCM file to skip certain beg andend rows.
+            df = pd.read_csv(file_path, header = 15, skipfooter = 3, engine = 'python')
         elif ext in ('.xls', '.xlsx'):
             df = pd.read_excel(file_path)
         else:
@@ -95,7 +100,8 @@ def load_file(file_type):
         if file_type == "Fandango Sales File":
             fandango_df = df.drop('Row', axis=1)
         elif file_type == 'DCM Floodlight File':
-            dcm_df = df
+            # More DCM floodlight file fomatting here
+            dcm_df = df.drop(0).drop('Unnamed: 2', axis = 1)
         elif file_type == "Search Volume File":
             search_volume_df = df
 
