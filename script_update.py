@@ -44,7 +44,7 @@ def make_script():
 
     # Floodlight Index Value calculation included here
     df_merge_final['Floodlight Volume PP'] = df_merge_final['Total Conversions'] / df_merge_final['Population']
-    df_merge_final['Floodlight Volume PP Index'] = df_merge_final['Floodlight volume PP'] . df_merge_final['Floodlight Volume PP'].mean()
+    df_merge_final['Floodlight Volume PP Index'] = df_merge_final['Floodlight Volume PP'] / df_merge_final['Floodlight Volume PP'].mean()
 
     #Add final weighting column for each DMA
     df_merge_final['Composite Score'] = ((df_merge_final['Sales PP Index'] * 0.10) +  (df_merge_final['Search PP Index'] * 0.67) + (df_merge_final['Floodlight Volume PP Index'] * 0.23))
