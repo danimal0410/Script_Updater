@@ -30,21 +30,30 @@ def make_script():
     global df_merge_final
     # Merge uploaded data frames with the matched reference file to combine all necessary data for weight calculatiopns.
     df_merge_1 = df_match_ref.merge(fandango_df, left_on='Fandango DMA', right_on='DMA Market')
-    df_merge_2 = df_merge_1.merge(search_volume_df, left_on='Search DMA', right_on='geo_name')
+    df_merge_2 = df_merge_1.merge(search_volume_df, left_on='Search DMA', right_on='DMA Name')
     df_merge_final = df_merge_2.merge(dcm_df, left_on='DCM DMA', right_on='Designated Market Area (DMA)')
+
+    print('check 1')
     
     #Use merged data to calculate Indexed Search Per Person, first by creating the search per person column, then avg, then Indexed Search PP column
-    df_merge_final['Search PP'] = df_merge_final['Indexed Search'] / df_merge_final['Population']
+    df_merge_final['Search PP'] = df_merge_final['Indexed Ad Opportunities'] / df_merge_final['Population']
     search_pp_avg = df_merge_final['Search PP'].mean()
     df_merge_final['Search PP Index'] = df_merge_final['Search PP'] / search_pp_avg
+
+    print('check 2')
 
     #Use merged files to calculate Sales PP Index with new methodology to account for the percentage share of sales format
     df_merge_final['Sales Share PP'] = df_merge_final['Primary - Share of Tickets Sold'] / df_merge_final['Population']
     df_merge_final['Sales PP Index'] = df_merge_final['Sales Share PP'] / df_merge_final['Sales Share PP'].mean()
 
+    print('check 3')
+
+
     # Floodlight Index Value calculation included here
     df_merge_final['Floodlight Volume PP'] = df_merge_final['Total Conversions'] / df_merge_final['Population']
     df_merge_final['Floodlight Volume PP Index'] = df_merge_final['Floodlight Volume PP'] / df_merge_final['Floodlight Volume PP'].mean()
+
+    print('check 4')
 
     #Add final weighting column for each DMA
     df_merge_final['Composite Score'] = ((df_merge_final['Sales PP Index'] * 0.10) +  (df_merge_final['Search PP Index'] * 0.67) + (df_merge_final['Floodlight Volume PP Index'] * 0.23))
@@ -86,7 +95,7 @@ def load_file(file_type):
         ext = os.path.splitext(file_path)[1].lower()
         if ext == '.csv':
             # Some fileformatting included here for the DCM file to skip certain beg andend rows.
-            df = pd.read_csv(file_path, header = 15, skipfooter = 3, engine = 'python')
+            df = pd.read_csv(file_path, skipfooter = 3, engine = 'python')
         elif ext in ('.xls', '.xlsx'):
             df = pd.read_excel(file_path)
         else:
@@ -101,7 +110,7 @@ def load_file(file_type):
             fandango_df = df.drop('Row', axis=1)
         elif file_type == 'DCM Floodlight File':
             # More DCM floodlight file fomatting here
-            dcm_df = df.drop(0).drop('Unnamed: 2', axis = 1)
+            dcm_df = df
         elif file_type == "Search Volume File":
             search_volume_df = df
 
@@ -111,7 +120,9 @@ def load_file(file_type):
             prompt_continue()
 
     except Exception as e:
-        messagebox.showerror("Error", f"Failed to load {file_type}: {e}")
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        messagebox.showerror("Error", f"Failed to load {file_type}: {e}, {exc_type}, {fname}, {exc_tb.tb_lineno}")
         return
 
 # GUI setup
